@@ -16,18 +16,19 @@
 				</div>
 			</div>
 		</div>
+		<button v-on:click="addOp">New Op</button>
 	</div>
 </template>
 
 <script>
 import {
-	mapState
+	mapState,
+	mapActions
 } from 'vuex'
-
 export default {
 	name: 'opList',
 	mounted() {
-		this.$store.dispatch('SEND_GET_OPS',{
+		this.socketGetOps({
 			socket: this.$socket,
 			params: {}
 		});
@@ -36,6 +37,17 @@ export default {
 		'opList'
 	]),
 	methods: {
+		addOp: function(){
+			this.socketAddOp({
+				socket: this.$socket,
+				params: {}
+			});
+		},
+		...mapActions([
+			'socketGetOps',
+			'socketAddOp',
+			'socketDeleteOp'
+		])
 	}
 }
 </script>

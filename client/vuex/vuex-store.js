@@ -13,7 +13,15 @@ export default new Vuex.Store({
     opData: [],
     opList: []
   },
-
+  getters: {
+    sortedSites: (state, getters) => {
+      function compare(a, b) {
+        return a.createdAt - b.createdAt;
+      }
+      console.log(state.sitesData.sort(compare));
+      return state.sitesData.sort(compare);
+    }
+  },
   mutations: {
     SOCKET_CONNECT(state) {
       console.log('SOCKET_CONNECT');
@@ -37,6 +45,12 @@ export default new Vuex.Store({
           break;
         }
       }
+    },
+
+    SOCKET_OP_ADDED(state, data) {
+      console.log('SOCKET_OP_ADDED');
+      console.log(JSON.stringify(data));
+      state.opList.push(data);
     },
 
     SOCKET_PARTICIPANT_UPDATE(state, data) {
@@ -95,7 +109,37 @@ export default new Vuex.Store({
       console.log('SOCKET_GET_OPS');
       console.log(JSON.stringify(data));
       state.opList = data
-    }
+    },
+
+    SOCKET_SITE_DELETED(state, data) {
+      console.log('SOCKET_SITE_DELETED');
+      console.log(JSON.stringify(data));
+      var found = -1;
+      for (var i = 0; i < state.sitesData.length; i++) {
+        if (state.sitesData[i].id == data.siteId) {
+          state.sitesData.splice(i, 1);
+          break;
+        }
+      }
+    },
+
+    SOCKET_PARTICIPANT_DELETED(state, data) {
+      console.log('SOCKET_PARTICIPANT_DELETED');
+      console.log(JSON.stringify(data));
+      var found = -1;
+      for (var i = 0; i < state.sitesData.length; i++) {
+        if (state.sitesData[i].id == data.SiteId) {
+          var participants = state.sitesData[i].SiteParticipations;
+          for (var j in participants) {
+            if (participants[j].id == data.id) {
+              participants.splice(j, 1);
+              break;
+            }
+          }
+          break;
+        }
+      }
+    },
   },
-  actions
+  actions: actions()
 });

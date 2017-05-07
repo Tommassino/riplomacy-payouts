@@ -10,7 +10,7 @@
 				</tr>
 			</table>
 			<table>
-				<div v-for="site in sitesData">
+				<div v-for="site in sortedSites">
 					<tr v-for="(value, propertyName) in site">
 						<td>{{propertyName}}</td>
 						<td>{{value}}</td>
@@ -49,27 +49,29 @@
 			v-on:submit="onIskDialogSubmit" v-model="iskDialogSiteData" v-on:close="onIskDialogSubmit">
 		</modal>
 
-		<div v-for="(site, siteIndex) in sitesData">
+		<div v-for="(site, siteIndex) in sortedSites">
 			Site Id: {{site.id}}
 			Site Created: {{site.createdAt}}
 			Site Isk: {{site.estimatedPayout}}
 
 			<button v-on:click="openIskDialog(site)">Set Site ISK</button>
 			<button v-on:click="toggleDetails(site)">Toggle Details</button>
+			<button class="delete-button" v-on:click="deleteSite(site)"> </button>
 
-			<div class="divTable" v-if="site.showDetails">
+			<div class="divTable" v-if="siteDetailOpen(site)">
 				<div class="divTableHeading">
 					<div class="divTableHead">Pilot Id</div>
 					<div class="divTableHead">Pilot Name</div>
 					<div class="divTableHead">Points</div>
 					<div class="divTableHead">ISK Share</div>
+					<div class="divTableHead"></div>
 				</div>
 				<div class="divTableBody">
 					<div class="divTableRow" v-for="(participant, participantIndex) in site.SiteParticipations">
 						<div class="divTableCell">{{participant.Pilot.id}}</div>
 						<div class="divTableCell">
 							<editable-cell 
-								v-bind:value="sitesData[siteIndex].SiteParticipations[participantIndex].Pilot"
+								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].Pilot"
 								@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
 								:autocomplete="true"
 								acApi="http://localhost:3000/get_pilots"
@@ -80,11 +82,12 @@
 						</div>
 						<div class="divTableCell">
 							<editable-cell 
-								v-bind:value="sitesData[siteIndex].SiteParticipations[participantIndex].points"
+								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].points"
 								@input="(value)=>{participant.points = value; updateParticipant(participant);}"
 							></editable-cell>
 						</div>
 						<div class="divTableCell">{{siteIsk(site,participant)}}</div>
+						<div class="divTableCell"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
 					</div>
 				</div>
 				<button v-on:click="addParticipant(site)">Add Participant</button>
@@ -99,7 +102,7 @@ import EditableCell from './EditableCell.vue';
 import Modal from './ISKModal.vue';
 
 import {
-	mapState
+	mapState, mapGetters, mapActions
 } from 'vuex';
 export default {
 	name: 'siteDetail',
@@ -109,19 +112,13 @@ export default {
 	},
 	mounted() {
 		var opId = this.$route.params.opId;
-		this.$store.dispatch('SEND_JOIN_ROOM',{
-			socket: this.$socket,
-			params: {
-				room: opId
-			}
-		});
-		this.$store.dispatch('SEND_GET_OP', {
+		this.socketGetOp({
 			socket: this.$socket,
 			params: {
 				id: opId
 			}
 		});
-		this.$store.dispatch('SEND_GET_SITES', {
+		this.socketGetSites({
 			socket: this.$socket,
 			params: {
 				opId: opId
@@ -133,15 +130,27 @@ export default {
 		return {
 			debug: false,
 			iskDialogSiteData: {},
-			showIskDialog: false
+			showIskDialog: false,
+			openedSite: undefined
 		}
 	},
-	computed: mapState({
-		isConnected: state => state.isConnected,
-		sitesData: state=>state.sitesData,
-		opData: state=>state.opData,
-	}),
+	computed: {
+		...mapState([
+			'isConnected',
+			'opData'
+		]),
+		...mapGetters([
+			'sortedSites'
+		])
+	},
 	methods: {
+		siteDetailOpen: function(site){
+			if(this.openedSite){
+				return this.openedSite == site.id;
+			}else{
+				return this.sortedSites[this.sortedSites.length-1].id == site.id;
+			}
+		},
 		siteIsk: function(site, participant){
 			var total = 0;
 			for(var id in site.SiteParticipations){
@@ -150,7 +159,6 @@ export default {
 			return (site.estimatedPayout || 0)/total*participant.points;
 		},
 		openIskDialog: function(site){
-			console.log(site);
 			this.iskDialogSiteData = site;
 			this.showIskDialog = true;
 		},
@@ -169,15 +177,35 @@ export default {
 			return (site.estimatedPayout || 0)/total*participant.points;
 		},
 		deleteOp: function(){
-			this.$store.dispatch('SEND_DELETE_OP', {
+			if(!confirm('Are you sure?'))
+				return;
+			this.socketDeleteOp({
 				socket: this.$socket,
 				params: {
 					opId: this.opData.id
 				}
 			});
 		},
+		deleteSite: function(site){
+			if(!confirm('Are you sure?'))
+				return;
+			this.socketDeleteSite({
+				socket: this.$socket,
+				params: {
+					siteId: site.id
+				}
+			});
+		},
+		deleteParticipant: function(participant){
+			if(!confirm('Are you sure?'))
+				return;
+			this.socketDeleteParticipant({
+				socket: this.$socket,
+				params: participant
+			});
+		},
 		joinRoomRepeat: function() {
-			this.$store.dispatch('SEND_JOIN_ROOM', {
+			this.socketJoinRoom({
 				socket: this.$socket,
 				params: {
 					room: this.$route.params.opId
@@ -188,7 +216,7 @@ export default {
 			}, 60000);
 		},
 		addSite: function() {
-			this.$store.dispatch('SEND_ADD_SITE', {
+			this.socketAddSite({
 				socket: this.$socket,
 				params: {
 					opId: this.opData.id
@@ -196,7 +224,7 @@ export default {
 			});
 		},
 		addParticipant: function(site) {
-			this.$store.dispatch('SEND_ADD_PARTICIPANT', {
+			this.socketAddParticipant({
 				socket: this.$socket,
 				params: {
 					siteId: site.id
@@ -204,20 +232,19 @@ export default {
 			});
 		},
 		updateSite: function(site){
-			this.$store.dispatch('SEND_UPDATE_SITE', {
+			this.socketUpdateSite({
 				socket: this.$socket,
 				params: site
 			});
 		},
 		updateOp: function(){
-			this.$store.dispatch('SEND_UPDATE_OP', {
+			this.socketUpdateOp({
 				socket: this.$socket,
 				params: this.opData
 			});
 		},
 		updateParticipant: function(participant){
-			//var participant = this.sitesData[siteIndex].SiteParticipations[participantIndex];
-			this.$store.dispatch('SEND_UPDATE_PARTICIPANT', {
+			this.socketUpdateParticipant({
 				socket: this.$socket,
 				params: {
 					id: participant.id,
@@ -228,14 +255,26 @@ export default {
 			});
 		},
 		toggleDetails: function(site) {
-			if (site.showDetails)
-				site.showDetails = false;
-			else //undefined or false - create using vue
-				this.$set(site, 'showDetails', true);
+			this.openedSite = site.id;
 		},
 		toggleDebug: function() {
 			this.debug = !this.debug;
-		}
+		},
+		...mapActions([
+			'socketJoinRoom',
+			'socketAddOp',
+			'socketGetOps',
+			'socketGetOp',
+			'socketUpdateOp',
+			'socketDeleteOp',
+			'socketAddSite',
+			'socketDeleteSite',
+			'socketGetSites',
+			'socketUpdateSite',
+			'socketAddParticipant',
+			'socketUpdateParticipant',
+			'socketDeleteParticipant'
+		])
 	}
 }
 </script>
@@ -269,6 +308,13 @@ export default {
 }
 .divTableBody {
 	display: table-row-group;
+}
+.delete-button{
+	background-image: url('~../assets/trashcan.png');
+	background-size: contain;
+	width: 25px;
+	height: 25px;
+	display: inline-block;
 }
 
 </style>

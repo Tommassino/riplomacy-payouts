@@ -11,56 +11,35 @@ const cleanJson = function(json) {
 	}
 }
 
-export const actions = {
-	SEND_GET_SITES: (context, data) => {
-		console.log('sending get_site')
-		console.log(data.params);
-		data.socket.emit('get_sites', data.params);
-	},
-	SEND_JOIN_ROOM: (context, data) => {
-		console.log('sending join_room')
-		console.log(data.params);
-		data.socket.emit('join_room', data.params);
-	},
-	SEND_GET_OP: (context, data) => {
-		console.log('sending get_op')
-		console.log(data.params);
-		data.socket.emit('get_op', data.params);
-	},
-	SEND_GET_OPS: (context, data) => {
-		console.log('sending get_ops')
-		console.log(data.params);
-		data.socket.emit('get_ops', data.params);
-	},
-	SEND_UPDATE_OP: (context, data) => {
-		console.log('sending update_op')
-		cleanJson(data.params.opData);
-		console.log(JSON.stringify(data.params));
-		data.socket.emit('update_op', data.params);
-	},
-	SEND_ADD_SITE: (context, data) => {
-		console.log('sending add_site')
-		console.log(data.params);
-		data.socket.emit('add_site', data.params);
-	},
-	SEND_ADD_PARTICIPANT: (context, data) => {
-		console.log('sending add_participant')
-		console.log(data.params);
-		data.socket.emit('add_participant', data.params);
-	},
-	SEND_UPDATE_PARTICIPANT: (context, data) => {
-		console.log('sending update_participant')
-		console.log(data.params);
-		data.socket.emit('update_participant', data.params);
-	},
-	SEND_DELETE_OP: (context, data) => {
-		console.log('sending delete_op')
-		console.log(data.params);
-		data.socket.emit('delete_op', data.params);
-	},
-	SEND_UPDATE_SITE: (context, data) =>{
-		console.log('sending update_site')
-		console.log(data.params);
-		data.socket.emit('update_site', data.params);
-	}
+export const actions = () => {
+	var sockets = [
+		'join_room',
+		'add_op',
+		'get_ops',
+		'get_op',
+		'update_op',
+		'delete_op',
+		'add_site',
+		'delete_site',
+		'get_sites',
+		'update_site',
+		'add_participant',
+		'update_participant',
+		'delete_participant'
+	];
+	return ((sockets) => {
+		var action_handles = {}
+		for (var idx in sockets) {
+			var socket = sockets[idx];
+			((action_handles, socket) => {
+				var camelCased = ('socket_'+socket).replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+				action_handles[camelCased] = (context, data) => {
+					console.log('sending ' + socket)
+					console.log(data.params);
+					data.socket.emit(socket, data.params);
+				};
+			})(action_handles, socket);
+		}
+		return action_handles;
+	})(sockets);
 }

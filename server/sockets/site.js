@@ -48,16 +48,56 @@ const sendSites = (client, data) => {
 	});
 };
 
-//TODO clone participation from last
 const addSite = (client, data) => {
 	opId = data.opId;
-	models.Op.findById(opId, {
-		include: [models.Site]
-	}).then(op => {
-		models.Site.create().then(site => {
-			site.setOp(op).then(function() {
-				console.log("broadcasting get_site to " + op.id);
-				io.to(op.id).emit('get_site', site); //manual broadcast
+
+	models.sequelize.transaction({
+		autocommit: false
+	}).then(transaction => {
+		return models.Op.findById(opId, {
+			transaction
+		}).then(op => {
+			return models.Site.find({
+				include: [models.SiteParticipation],
+				where: {
+					OpId: opId
+				},
+				order: [
+					['createdAt', 'DESC']
+				],
+				transaction
+			}).then(latest_site => {
+				return models.Site.create({
+					OpId: op.id
+				}, {
+					transaction
+				}).then(site => {
+					return models.sequelize.Promise.map(latest_site ? latest_site.SiteParticipations : [], participation => {
+						if(participation.PilotId == 1)
+							return undefined;
+						return models.SiteParticipation.create({
+							SiteId: site.id,
+							PilotId: participation.PilotId,
+							points: participation.points
+						}, {
+							transaction
+						});
+					}).then(participations => {
+						return models.Site.findById(site.id, {
+							include: [{
+								model: models.SiteParticipation,
+								include: models.Pilot
+							}],
+							transaction
+						}).then(function(new_site) {
+							io.to(new_site.OpId).emit('get_site', new_site);
+							return transaction.commit();
+						}).catch(err => {
+							console.log(err);
+							return transaction.rollback();
+						});
+					});
+				});
 			});
 		})
 	});
@@ -107,6 +147,23 @@ const updateParticipant = (client, data) => {
 		});
 };
 
+const deleteSite = (client, data) => {
+	models.Site.findById(data.siteId).then(function(site) {
+		site.destroy();
+		io.to(site.OpId).emit('site_deleted', data);
+	});
+};
+
+const deleteParticipant = (client, data) => {
+	models.SiteParticipation.findById(data.id).then(function(siteParticipation) {
+		var siteId = siteParticipation.SiteId;
+		siteParticipation.destroy();
+		models.Site.findById(siteId).then(function(site) {
+			io.to(site.OpId).emit('participant_deleted', data);
+		});
+	});
+};
+
 
 module.exports = (_io) => {
 	io = _io;
@@ -116,7 +173,9 @@ module.exports = (_io) => {
 		'update_site': updateSite,
 		'add_site': addSite,
 		'add_participant': addParticipant,
-		'update_participant': updateParticipant
+		'update_participant': updateParticipant,
+		'delete_participant': deleteParticipant,
+		'delete_site': deleteSite
 	};
 
 	io.on('connection', (function(events) {

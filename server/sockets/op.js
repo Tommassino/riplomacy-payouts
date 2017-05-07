@@ -59,7 +59,19 @@ const sendOpList = (client, data) => {
 };
 
 const addOp = (client, data) => {
-
+	models.Op.create({
+		FleetCommanderId: 1
+	}).then(op_shallow => {
+		models.Op.findById(op_shallow.id, {
+			include: [{
+				model: models.Pilot,
+				as: 'FleetCommander'
+			}]
+		}).then(op => {
+			console.log("broadcasting op_added");
+			io.sockets.emit('op_added', op); //manual broadcast
+		});
+	});
 };
 
 const joinRoom = (client, data) => {
