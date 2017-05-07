@@ -36,19 +36,19 @@ export default {
 	computed: mapState([
 		'opList'
 	]),
-	methods: {
-		addOp: function(){
-			this.socketAddOp({
-				socket: this.$socket,
-				params: {}
-			});
+	methods: Object.assign({
+			addOp: function() {
+				this.socketAddOp({
+					socket: this.$socket,
+					params: {}
+				});
+			}
 		},
-		...mapActions([
+		mapActions([
 			'socketGetOps',
 			'socketAddOp',
 			'socketDeleteOp'
-		])
-	}
+		]))
 }
 </script>
 

@@ -134,50 +134,48 @@ export default {
 			openedSite: undefined
 		}
 	},
-	computed: {
-		...mapState([
+	computed: Object.assign(
+		mapState([
 			'isConnected',
 			'opData'
-		]),
-		...mapGetters([
+		]), mapGetters([
 			'sortedSites'
-		])
-	},
-	methods: {
-		siteDetailOpen: function(site){
-			if(this.openedSite){
+		])),
+	methods: Object.assign({
+		siteDetailOpen: function(site) {
+			if (this.openedSite) {
 				return this.openedSite == site.id;
-			}else{
-				return this.sortedSites[this.sortedSites.length-1].id == site.id;
+			} else {
+				return this.sortedSites[this.sortedSites.length - 1].id == site.id;
 			}
 		},
-		siteIsk: function(site, participant){
+		siteIsk: function(site, participant) {
 			var total = 0;
-			for(var id in site.SiteParticipations){
-				total+=parseInt(site.SiteParticipations[id].points);
+			for (var id in site.SiteParticipations) {
+				total += parseInt(site.SiteParticipations[id].points);
 			}
-			return (site.estimatedPayout || 0)/total*participant.points;
+			return (site.estimatedPayout || 0) / total * participant.points;
 		},
-		openIskDialog: function(site){
+		openIskDialog: function(site) {
 			this.iskDialogSiteData = site;
 			this.showIskDialog = true;
 		},
-		onIskDialogSubmit: function(data){
+		onIskDialogSubmit: function(data) {
 			console.log(data);
 			//#TODO subtract total
 			this.iskDialogSiteData.estimatedPayout = data.estimatedPayout;
 			this.showIskDialog = false;
 			this.updateSite(this.iskDialogSiteData);
 		},
-		siteIsk: function(site, participant){
+		siteIsk: function(site, participant) {
 			var total = 0;
-			for(var id in site.SiteParticipations){
-				total+=parseInt(site.SiteParticipations[id].points);
+			for (var id in site.SiteParticipations) {
+				total += parseInt(site.SiteParticipations[id].points);
 			}
-			return (site.estimatedPayout || 0)/total*participant.points;
+			return (site.estimatedPayout || 0) / total * participant.points;
 		},
-		deleteOp: function(){
-			if(!confirm('Are you sure?'))
+		deleteOp: function() {
+			if (!confirm('Are you sure?'))
 				return;
 			this.socketDeleteOp({
 				socket: this.$socket,
@@ -186,8 +184,8 @@ export default {
 				}
 			});
 		},
-		deleteSite: function(site){
-			if(!confirm('Are you sure?'))
+		deleteSite: function(site) {
+			if (!confirm('Are you sure?'))
 				return;
 			this.socketDeleteSite({
 				socket: this.$socket,
@@ -196,8 +194,8 @@ export default {
 				}
 			});
 		},
-		deleteParticipant: function(participant){
-			if(!confirm('Are you sure?'))
+		deleteParticipant: function(participant) {
+			if (!confirm('Are you sure?'))
 				return;
 			this.socketDeleteParticipant({
 				socket: this.$socket,
@@ -231,19 +229,19 @@ export default {
 				}
 			});
 		},
-		updateSite: function(site){
+		updateSite: function(site) {
 			this.socketUpdateSite({
 				socket: this.$socket,
 				params: site
 			});
 		},
-		updateOp: function(){
+		updateOp: function() {
 			this.socketUpdateOp({
 				socket: this.$socket,
 				params: this.opData
 			});
 		},
-		updateParticipant: function(participant){
+		updateParticipant: function(participant) {
 			this.socketUpdateParticipant({
 				socket: this.$socket,
 				params: {
@@ -259,23 +257,22 @@ export default {
 		},
 		toggleDebug: function() {
 			this.debug = !this.debug;
-		},
-		...mapActions([
-			'socketJoinRoom',
-			'socketAddOp',
-			'socketGetOps',
-			'socketGetOp',
-			'socketUpdateOp',
-			'socketDeleteOp',
-			'socketAddSite',
-			'socketDeleteSite',
-			'socketGetSites',
-			'socketUpdateSite',
-			'socketAddParticipant',
-			'socketUpdateParticipant',
-			'socketDeleteParticipant'
-		])
-	}
+		}
+	}, mapActions([
+		'socketJoinRoom',
+		'socketAddOp',
+		'socketGetOps',
+		'socketGetOp',
+		'socketUpdateOp',
+		'socketDeleteOp',
+		'socketAddSite',
+		'socketDeleteSite',
+		'socketGetSites',
+		'socketUpdateSite',
+		'socketAddParticipant',
+		'socketUpdateParticipant',
+		'socketDeleteParticipant'
+	]))
 }
 </script>
 
