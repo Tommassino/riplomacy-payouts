@@ -74,7 +74,7 @@
 								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].Pilot"
 								@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
 								:autocomplete="true"
-								acApi="http://localhost:3000/get_pilots"
+								acApi="getApiUrl"
 								acParam="pilotName"
 								valueAttribute="id"
 								labelAttribute="pilotName"
@@ -100,6 +100,8 @@
 <script>
 import EditableCell from './EditableCell.vue';
 import Modal from './ISKModal.vue';
+
+import config from '../config/dev.env.js'
 
 import {
 	mapState, mapGetters, mapActions
@@ -140,7 +142,11 @@ export default {
 			'opData'
 		]), mapGetters([
 			'sortedSites'
-		])),
+		]),{
+			getApiUrl(){
+				return 'http://'+config.bind_host+":"+config.bind_port+'/get_pilots';
+			}
+		}),
 	methods: Object.assign({
 		siteDetailOpen: function(site) {
 			if (this.openedSite) {

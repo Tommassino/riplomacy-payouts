@@ -4,14 +4,14 @@ const Serializer = require('sequelize-to-json');
 var io = undefined;
 
 const siteDetail_broadcast = (siteId) => {
-	console.log('brodcasting site' + siteId);
+	console.log('brodcasting get_site ' + siteId);
 	models.Site.findById(siteId, {
 		include: [{
 			model: models.SiteParticipation,
 			include: models.Pilot
 		}]
 	}).then(function(site) {
-		io.to(site.opId).emit('get_site', site);
+		io.to(site.OpId).emit('get_site', site);
 	});
 };
 

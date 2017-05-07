@@ -39,8 +39,6 @@ export default new Vuex.Store({
       var found = -1;
       for (var i = 0; i < state.sitesData.length; i++) {
         if (state.sitesData[i].id === data.SiteId) {
-          /*if (!state.sitesData[i]['SiteParticipations'])
-            state.sitesData[i]['SiteParticipations'] = [];*/
           state.sitesData[i].SiteParticipations.push(data);
           break;
         }
@@ -62,7 +60,7 @@ export default new Vuex.Store({
           var currentSite = state.sitesData[i];
           for (var j = 0; j < currentSite.SiteParticipations.length; j++) {
             if (currentSite.SiteParticipations[j].id == data.id) {
-              currentSite.SiteParticipations[j] = data;
+              Object.assign(currentSite.SiteParticipations[j], data);
               break;
             }
           }
@@ -75,10 +73,6 @@ export default new Vuex.Store({
       console.log('SOCKET_GET_SITES');
       console.log(JSON.stringify(data));
       state.sitesData = data;
-      for (var i = 0; i < state.sitesData.length; i++) {
-        /*if (!state.sitesData[i]['SiteParticipations'])
-          state.sitesData[i]['SiteParticipations'] = [];*/
-      }
     },
 
     SOCKET_GET_SITE(state, data) {
@@ -94,7 +88,7 @@ export default new Vuex.Store({
         }
       }
       if (found >= 0)
-        state.sitesData[i] = data;
+        Object.assign(state.sitesData[i],data);
       else
         state.sitesData.push(data);
     },

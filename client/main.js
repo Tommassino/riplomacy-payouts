@@ -7,7 +7,9 @@ import App from './App.vue'
 import OpList from './components/OpList.vue'
 import OpDetail from './components/OpDetail.vue'
 
-Vue.use(VueSocketIO, 'http://localhost:3000', store);
+import config from './config/dev.env.js'
+
+Vue.use(VueSocketIO, 'http://'+config.bind_host+":"+config.bind_port, store);
 Vue.use(VueRouter);
 
 const router = new VueRouter({
