@@ -7,6 +7,7 @@ import store from './vuex/vuex-store.js'
 import App from './App.vue'
 import OpList from './components/OpList.vue'
 import OpDetail from './components/OpDetail.vue'
+import Payouts from './components/Payouts.vue'
 
 import config from './config/dev.env.js'
 
@@ -23,6 +24,10 @@ const router = new VueRouter({
 		{
 			path: '/op/:opId',
 			component: OpDetail
+		},
+		{
+			path: '/payouts',
+			component: Payouts
 		}
 	]
 });

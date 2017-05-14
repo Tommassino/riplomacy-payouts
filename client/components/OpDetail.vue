@@ -101,10 +101,12 @@
 import EditableCell from './EditableCell.vue';
 import Modal from './ISKModal.vue';
 
-import config from '../config/dev.env.js'
+import config from '../config/dev.env.js';
 
 import {
-	mapState, mapGetters, mapActions
+	mapState,
+	mapGetters,
+	mapActions
 } from 'vuex';
 export default {
 	name: 'siteDetail',
@@ -142,9 +144,9 @@ export default {
 			'opData'
 		]), mapGetters([
 			'sortedSites'
-		]),{
-			getApiUrl(){
-				return 'http://'+config.bind_host+":"+config.bind_port+config.bind_path+'/get_pilots';
+		]), {
+			getApiUrl() {
+				return 'http://' + config.bind_host + ":" + config.bind_port + config.bind_path + '/get_pilots';
 			}
 		}),
 	methods: Object.assign({
