@@ -27,7 +27,7 @@
 					v-bind:value="opData.FleetCommander"
 					@input="(value)=>{opData.FleetCommander = value; opData.FleetCommanderId=value.id; updateOp();}"
 					:autocomplete="true"
-					acApi="http://localhost:3000/get_pilots"
+					:acApi="getApiUrl"
 					acParam="pilotName"
 					valueAttribute="id"
 					labelAttribute="pilotName"
@@ -74,7 +74,7 @@
 								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].Pilot"
 								@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
 								:autocomplete="true"
-								acApi="getApiUrl"
+								:acApi="getApiUrl"
 								acParam="pilotName"
 								valueAttribute="id"
 								labelAttribute="pilotName"
@@ -144,7 +144,7 @@ export default {
 			'sortedSites'
 		]),{
 			getApiUrl(){
-				return 'http://'+config.bind_host+":"+config.bind_port+'/get_pilots';
+				return 'http://'+config.bind_host+":"+config.bind_port+config.bind_path+'/get_pilots';
 			}
 		}),
 	methods: Object.assign({

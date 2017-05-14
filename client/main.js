@@ -10,7 +10,7 @@ import OpDetail from './components/OpDetail.vue'
 
 import config from './config/dev.env.js'
 
-var socketio = SocketIO('http://'+config.bind_host+":"+config.bind_port, {path:config.bind_path});
+var socketio = SocketIO('http://'+config.bind_host+":"+config.bind_port, {path:config.bind_path+"/socket.io"});
 Vue.use(VueSocketIO, socketio, store);
 Vue.use(VueRouter);
 

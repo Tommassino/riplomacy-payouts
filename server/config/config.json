@@ -1,7 +1,7 @@
 {
   "development": {
     "bind_port": "3000",
-    "bind_path": "/api/socket.io"
+    "bind_path": "/socket.io"
   },
   "test": {
     "bind_port": "80",

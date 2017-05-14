@@ -90,7 +90,7 @@ export default {
 			}, 250);
 		},
 		keydown(e) {
-			let key = e.keyCode;
+			var key = e.keyCode;
 			// Disable when disabled
 			if (this.disabled) return;
 			switch (key) {
@@ -133,13 +133,13 @@ export default {
 		getData(text) {
 			const self = this;
 			if (this.acApi != null) {
-				let ajax = new XMLHttpRequest();
+				var ajax = new XMLHttpRequest();
 				ajax.open('GET', `${this.acApi}?${this.acParam}=${text}`, true);
 				ajax.send();
 				ajax.addEventListener('progress', function(data) {
 				});
 				ajax.addEventListener('loadend', function(data) {
-					let json = JSON.parse(this.responseText);
+					var json = JSON.parse(this.responseText);
 					self.jsonData = json;
 				});
 			}
