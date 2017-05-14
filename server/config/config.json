@@ -1,17 +1,14 @@
 {
   "development": {
-    "dialect": "sqlite",
-    "storage": "./db.development.sqlite",
-    "logging": false
+    "bind_port": "3000",
+    "bind_path": "/api/socket.io"
   },
   "test": {
-    "dialect": "sqlite",
-    "storage": ":memory:",
-    "logging": false
+    "bind_port": "80",
+    "bind_path": "/api/socket.io"
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "./db.development.sqlite",
-    "logging": false
+    "bind_port": "80",
+    "bind_path": "/api/socket.io"
   }
 }
