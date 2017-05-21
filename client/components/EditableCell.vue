@@ -7,7 +7,7 @@
 			:disabled="disabled" 
 			@focus="input(type,false)"
 			@input="input(type,false)"
-			@blur="setEditable(false)" 
+			@blur="submit()" 
 			@keydown="keydown"
 		/>
 		<div 
@@ -91,6 +91,22 @@ export default {
 				this.currentFocus = -1;
 			}, 250);
 		},
+		cancel(){
+			this.resetText(this.valueObject);
+			this.setEditable(false);
+		},
+		submit(){
+			//emit simple text field to parent
+			if(!this.autocomplete)
+				this.$emit('input', this.type);
+			else{
+				if(this.currentFocus < 0)
+					this.cancel()
+				else
+					this.selectList(this.currentFocus);
+			}
+			this.setEditable(false);
+		},
 		keydown(e) {
 			var key = e.keyCode;
 			// Disable when disabled
@@ -109,16 +125,10 @@ export default {
 					e.preventDefault();
 					break;
 				case 13: //enter
-					//emit simple text field to parent
-					if(!this.autocomplete)
-						this.$emit('input', this.type);
-					else
-						this.selectList(this.currentFocus);
-					this.setEditable(false);
+					this.submit();
 					break;
 				case 27: //esc
-					this.resetText(this.valueObject);
-					this.setEditable(false);
+					this.cancel();
 					break;
 			}
 			console.log(this.currentFocus);
