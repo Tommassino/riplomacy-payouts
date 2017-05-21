@@ -47,6 +47,26 @@
 			v-on:submit="onIskDialogSubmit" v-model="iskDialogSiteData" v-on:close="onIskDialogSubmit">
 		</modal>
 
+		<div>
+			Fleet Summary
+			<div v-for="pilot in fleetSummary.pilots" v-if="Object.keys(fleetSummary.pilots).length > 0">
+			</div>
+			<div class="divTable">
+				<div class="divTableHeading">
+					<div class="divTableHead">Pilot Name</div>
+					<div class="divTableHead">Points Total</div>
+					<div class="divTableHead">ISK Share</div>
+				</div>
+				<div class="divTableBody">
+					<div class="divTableRow" v-for="(participant, participantIndex) in fleetSummary.pilots" v-if="participant.Pilot != null">
+						<div class="divTableCell">{{participant.Pilot.pilotName}}</div>
+						<div class="divTableCell">{{participant.points}}</div>
+						<div class="divTableCell">{{participant.points/fleetSummary.totalPoints*fleetSummary.fleetIsk}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div v-for="(site, siteIndex) in sortedSites">
 			Site Id: {{site.id}}
 			Site Created: {{site.createdAt}}
@@ -145,6 +165,32 @@ export default {
 		]), {
 			getApiUrl() {
 				return 'http://' + config.bind_host + ":" + config.bind_port + config.bind_path + '/get_pilots';
+			},
+			fleetSummary() {
+				var pilots = {};
+				var sites = this.sortedSites;
+				var fleetIsk = 0;
+				var totalPoints = 0;
+				for (var siteId in sites) {
+					var site = sites[siteId];
+					fleetIsk += site.estimatedPayout;
+					for (var participationId in site.SiteParticipations) {
+						var participant = site.SiteParticipations[participationId]
+						var pilotId = participant.PilotId;
+						if (pilotId in pilots) {
+							pilots[pilotId].points += participant.points;
+						} else {
+							pilots[pilotId] = participant;
+						}
+						totalPoints += participant.points;
+					}
+				}
+				console.log(pilots)
+				return {
+					fleetIsk,
+					totalPoints,
+					pilots
+				}
 			}
 		}),
 	methods: Object.assign({

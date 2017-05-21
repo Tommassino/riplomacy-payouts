@@ -2,7 +2,7 @@
 	<div id="component-container">
 		<div>Fleet Commander</div>
 		<editable-cell 
-			v-bind:value="FleetCommander"
+			v-bind:value="FleetCommander ? FleetCommander : ''"
 			@input="(value)=>{FleetCommander = value; filterUpdated(value)}"
 			:autocomplete="true"
 			:acApi="getApiUrl"
@@ -29,7 +29,6 @@
 					</div>
 				</div>
 			</div>
-			<button v-on:click="addOp">New Op</button>
 		</div>
 	</div>
 </template>
@@ -70,10 +69,7 @@ export default {
 		}),
 	data() {
 		return {
-			FleetCommander: {
-				"id": 1,
-				"pilotName": "No Pilot"
-			},
+			FleetCommander: undefined,
 			FcFilter: undefined,
 			allSelected: false
 		}
