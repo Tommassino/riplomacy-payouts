@@ -22,9 +22,8 @@
 		<div>Connected: {{isConnected}} </div>
 		<div class="detail-row">
 			<div class="detail-row-label">Fleet Commander</div>
-			<div v-if="opData.FleetCommander" class="detail-row-value">
-				<editable-cell 
-					v-bind:value="opData.FleetCommander"
+			<editable-cell 
+					v-bind:value="opData.FleetCommanderId ? opData.FleetCommander : ''"
 					@input="(value)=>{opData.FleetCommander = value; opData.FleetCommanderId=value.id; updateOp();}"
 					:autocomplete="true"
 					:acApi="getApiUrl"
@@ -32,7 +31,6 @@
 					valueAttribute="id"
 					labelAttribute="pilotName"
 				></editable-cell>
-			</div>
 		</div>
 		<div class="detail-row">
 			<div class="detail-row-label">Date Created</div>
@@ -68,10 +66,10 @@
 				</div>
 				<div class="divTableBody">
 					<div class="divTableRow" v-for="(participant, participantIndex) in site.SiteParticipations">
-						<div class="divTableCell">{{participant.Pilot.id}}</div>
+						<div class="divTableCell">{{participant.id}}</div>
 						<div class="divTableCell">
 							<editable-cell 
-								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].Pilot"
+								v-bind:value="participant.Pilot ? participant.Pilot : ''"
 								@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
 								:autocomplete="true"
 								:acApi="getApiUrl"
@@ -82,7 +80,7 @@
 						</div>
 						<div class="divTableCell">
 							<editable-cell 
-								v-bind:value="sortedSites[siteIndex].SiteParticipations[participantIndex].points"
+								v-bind:value="participant.points"
 								@input="(value)=>{participant.points = value; updateParticipant(participant);}"
 							></editable-cell>
 						</div>

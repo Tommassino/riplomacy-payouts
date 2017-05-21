@@ -18,7 +18,9 @@ module.exports = function(sequelize, DataTypes) {
       associate: function(models) {
         Op.hasMany(models.Site);
         Op.belongsTo(models.Pilot, {
-          as: 'FleetCommander'
+          as: 'FleetCommander',
+          onDelete: 'SET NULL',
+          constraints: false
         })
       }
     }

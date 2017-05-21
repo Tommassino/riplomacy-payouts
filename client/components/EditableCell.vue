@@ -5,6 +5,7 @@
 			ref="inputElement" 
 			v-model="type"
 			:disabled="disabled" 
+			@focus="input(type,false)"
 			@input="input(type,false)"
 			@blur="setEditable(false)" 
 			@keydown="keydown"
@@ -45,7 +46,7 @@ export default {
 	data() {
 		return {
 			disabled: true,
-			type: this.labelAttribute ? this.value[this.labelAttribute] : this.value,
+			type: this.value ? (this.labelAttribute ? this.value[this.labelAttribute] : this.value) : '',
 			valueObject: this.value,
 			showAutocomplete: false,
 			jsonData: undefined,
@@ -70,13 +71,14 @@ export default {
 				})
 				this.showAutocomplete = true;
 			} else {
-				this.currentFocus = undefined;
+				this.currentFocus = -1;
 				setTimeout(() => {
 					this.showAutocomplete = false;
 				}, 250);
 			}
 		},
 		input(text, validated) {
+			console.log(text)
 			if(this.autocomplete)
 				this.getData(text);
 			this.type = text;
@@ -92,10 +94,14 @@ export default {
 		keydown(e) {
 			var key = e.keyCode;
 			// Disable when disabled
+			console.log(e);
 			if (this.disabled) return;
 			switch (key) {
 				case 40: //down
 					this.currentFocus++;
+					if(this.jsonData){
+						this.currentFocus = this.currentFocus % this.jsonData.length;
+					}
 					e.preventDefault();
 					break;
 				case 38: //up
@@ -115,6 +121,7 @@ export default {
 					this.setEditable(false);
 					break;
 			}
+			console.log(this.currentFocus);
 		},
 		//AUTOCOMPLETE METHODS
 		isFocused(i) {

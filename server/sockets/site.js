@@ -106,13 +106,12 @@ const addSite = (client, data) => {
 const addParticipant = (client, data) => {
 	models.SiteParticipation.findOrCreate({
 		where: {
-			SiteId: data.siteId,
-			PilotId: 1
+			PilotId: undefined,
+			SiteId: data.siteId
 		},
 		defaults: {
 			SiteId: data.siteId,
-			PilotId: 1,
-			Points: 0
+			Points: 1
 		},
 		raw: true
 	}).then(siteParticipation => {

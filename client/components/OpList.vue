@@ -10,7 +10,7 @@
 			<div class="divTableBody">
 				<div class="divTableRow" v-for="op in opList">
 					<div class="divTableCell">{{op.id}}</div>
-					<div class="divTableCell">{{op.FleetCommander.pilotName}}</div>
+					<div class="divTableCell">{{op.FleetCommander ? op.FleetCommander.pilotName : ''}}</div>
 					<div class="divTableCell">{{op.createdAt}}</div>
 					<div class="divTableCell"><a :href="'#/op/'+op.id">Go to Detail</a></div>
 				</div>

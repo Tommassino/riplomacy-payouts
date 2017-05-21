@@ -18,10 +18,7 @@ module.exports = function(sequelize, DataTypes) {
           }
         });
         SiteParticipation.belongsTo(models.Pilot, {
-          onDelete: "CASCADE",
-          foreignKey: {
-            allowNull: false
-          }
+          onDelete: "SET NULL"
         });
       }
     }
