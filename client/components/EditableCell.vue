@@ -5,10 +5,10 @@
 			ref="inputElement" 
 			v-model="type"
 			:disabled="disabled" 
-			@focus="input(type,false)"
-			@input="input(type,false)"
-			@blur="submit()" 
-			@keydown="keydown"
+			@focus="onFocus"
+			@input="onInput"
+			@blur="onBlur" 
+			@keydown="onKeydown"
 		/>
 		<div 
 			class="event-capture" 
@@ -42,6 +42,8 @@ export default {
 		autocomplete: Boolean,
 		acApi: String,
 		acParam: String,
+		nullable: Boolean,
+		format: Function
 	},
 	data() {
 		return {
@@ -50,7 +52,9 @@ export default {
 			valueObject: this.value,
 			showAutocomplete: false,
 			jsonData: undefined,
-			currentFocus: -1
+			currentFocus: -1,
+			formatedValue: undefined,
+			unformatedValue: undefined
 		}
 	},
 	watch:{
@@ -77,40 +81,43 @@ export default {
 				}, 250);
 			}
 		},
-		input(text, validated) {
-			console.log(text)
-			if(this.autocomplete)
-				this.getData(text);
-			this.type = text;
-		},
-		resetText(value){
-			setTimeout(() => {
-				this.valueObject = value;
-				this.showAutocomplete = false;
-				this.type = this.labelAttribute ? this.valueObject[this.labelAttribute] : this.valueObject;
-				this.currentFocus = -1;
-			}, 250);
-		},
-		cancel(){
-			this.resetText(this.valueObject);
-			this.setEditable(false);
-		},
-		submit(){
-			//emit simple text field to parent
-			if(!this.autocomplete)
-				this.$emit('input', this.type);
-			else{
-				if(this.currentFocus < 0)
-					this.cancel()
-				else
-					this.selectList(this.currentFocus);
+		onFocus(){
+			if(this.format){
+				this.type = this.unformatedValue;
 			}
-			this.setEditable(false);
+			this.onInput();
 		},
-		keydown(e) {
+		onBlur(submit=true){
+			if(submit){
+				if(!this.autocomplete)
+					//emit simple text field to parent
+					this.$emit('input', this.type);
+				else{
+					if(this.nullable && this.type==''){
+						this.resetText(null);
+						this.$emit('input', null);
+					}else if(this.currentFocus < 0)
+						this.resetText(this.valueObject);
+					else
+						this.selectList(this.currentFocus);
+				}
+			}
+			else
+				this.resetText(this.valueObject);
+			this.setEditable(false);
+			if(this.format){
+				this.unformatedValue = this.type;
+				this.type = this.format(this.type);
+			}
+		},
+		onInput(){
+			if(this.autocomplete)
+				this.getData(this.type);
+			this.type = this.type;
+		},
+		onKeydown(e) {
 			var key = e.keyCode;
 			// Disable when disabled
-			console.log(e);
 			if (this.disabled) return;
 			switch (key) {
 				case 40: //down
@@ -125,13 +132,26 @@ export default {
 					e.preventDefault();
 					break;
 				case 13: //enter
-					this.submit();
+					this.onBlur(true);
 					break;
 				case 27: //esc
-					this.cancel();
+					this.onBlur(false);
 					break;
 			}
 			console.log(this.currentFocus);
+		},
+		selectList(i){
+			var data = this.jsonData[i];
+			this.resetText(data);
+			this.$emit('input', data);
+		},
+		resetText(value){
+			setTimeout(() => {
+				this.valueObject = value;
+				this.showAutocomplete = false;
+				this.type = this.labelAttribute ? this.valueObject ? this.valueObject[this.labelAttribute] : '' : this.valueObject;
+				this.currentFocus = -1;
+			}, 250);
 		},
 		//AUTOCOMPLETE METHODS
 		isFocused(i) {
@@ -141,11 +161,6 @@ export default {
 		},
 		mousemove(i) {
 			this.currentFocus = i;
-		},
-		selectList(i){
-			var data = this.jsonData[i];
-			this.resetText(data);
-			this.$emit('input', data);
 		},
 		getData(text) {
 			const self = this;

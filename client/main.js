@@ -11,26 +11,30 @@ import Payouts from './components/Payouts.vue'
 
 import config from './config/dev.env.js'
 
-var socketio = SocketIO('http://'+config.bind_host+":"+config.bind_port, {path:config.bind_path+"/socket.io"});
+var socketio = SocketIO('http://' + config.bind_host + ":" + config.bind_port, {
+	path: config.bind_path + "/socket.io"
+});
 Vue.use(VueSocketIO, socketio, store);
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-	routes: [
-		{
-			path: '/ops',
-			component: OpList
-		},
-		{
-			path: '/op/:opId',
-			component: OpDetail
-		},
-		{
-			path: '/payouts',
-			component: Payouts
-		}
-	]
+	routes: [{
+		path: '/ops',
+		component: OpList
+	}, {
+		path: '/op/:opId',
+		component: OpDetail
+	}, {
+		path: '/payouts',
+		component: Payouts
+	}]
 });
+
+Vue.filter('iskString', function(value) {
+	return value ? value.toFixed(0).replace(/./g, function(c, i, a) {
+		return i && c !== "." && ((a.length - i) % 3 === 0) ? ' ' + c : c;
+	})+' ISK' : 0+' ISK';
+})
 
 new Vue({
 	store,

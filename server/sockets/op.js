@@ -48,11 +48,22 @@ const deleteOp = (client, data) => {
 };
 
 const sendOpList = (client, data) => {
+	var full = data.full
+	var include = [{
+		model: models.Pilot,
+		as: 'FleetCommander'
+	}];
+	if (full) {
+		include.push({
+			model: models.Site,
+			include: [{
+				model: models.SiteParticipation,
+				include: models.Pilot
+			}]
+		})
+	}
 	models.Op.findAll({
-		include: [{
-			model: models.Pilot,
-			as: 'FleetCommander'
-		}]
+		include
 	}).then(function(ops) {
 		client.emit('get_ops', ops);
 	});

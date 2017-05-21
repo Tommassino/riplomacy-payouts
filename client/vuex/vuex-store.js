@@ -20,6 +20,43 @@ export default new Vuex.Store({
       }
       console.log(state.sitesData.sort(compare));
       return state.sitesData.sort(compare);
+    },
+    opSummary: (state, getters) => (sites) => {
+      var pilots = {};
+      var totalIsk = 0;
+      var totalPoints = 0;
+      for (var siteId in sites) {
+        var site = sites[siteId];
+        totalIsk += site.estimatedPayout;
+        
+        var sitePoints = site.SiteParticipations.reduce((acc, cur) => {
+          return acc+parseInt(cur.points);
+        }, 0);
+        var siteIsk = parseInt(site.estimatedPayout);
+
+        for (var participationId in site.SiteParticipations) {
+          var participant = site.SiteParticipations[participationId]
+          var pilotId = participant.PilotId;
+          var points = parseInt(participant.points);
+
+          if (pilotId in pilots) {
+            pilots[pilotId].points += points;
+            pilots[pilotId].estimatedPayout += points/sitePoints * siteIsk;
+          } else {
+            pilots[pilotId] = {
+              'Pilot': participant.Pilot,
+              'points': points,
+              'estimatedPayout': points/sitePoints * siteIsk
+            }
+          }
+          totalPoints += points;
+        }
+      }
+      return {
+        totalIsk,
+        totalPoints,
+        pilots
+      }
     }
   },
   mutations: {
