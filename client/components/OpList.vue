@@ -18,6 +18,7 @@
 			</div>
 		</div>
 		<button v-on:click="addOp">New Op</button>
+		<router-link to="/payouts">Do Payouts</router-link>
 	</div>
 </template>
 

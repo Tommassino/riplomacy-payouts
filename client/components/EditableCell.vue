@@ -187,12 +187,12 @@ export default {
 	position:relative;
 	width:100%;
 }
-input{
+input, input:focus{
   background-color:transparent;
   border: 0;
   font-size: 1em;
   width:100%;
-  color: black;
+  color: white;
 }
 .event-capture{
 	position: absolute;

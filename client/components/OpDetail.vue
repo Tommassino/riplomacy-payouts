@@ -1,7 +1,6 @@
 <template>
 	<div id="opDetail">
-		<button v-on:click="toggleDebug">Toggle Debug</button>
-		
+		<button id="debug" v-on:click="toggleDebug">Toggle Debug</button>
 		<div v-if="debug">
 			<table>
 				<tr v-for="(value, propertyName) in opData">
@@ -19,36 +18,37 @@
 			</table>
 		</div>
 
-		<h2>Fleet Detail</h2>
-		<div>Connected: {{isConnected}} </div>
-		<div class="detail-row">
-			<div class="detail-row-label">Fleet Commander</div>
-			<editable-cell 
-					v-bind:value="opData.FleetCommanderId ? opData.FleetCommander : ''"
-					@input="(value)=>{opData.FleetCommander = value; opData.FleetCommanderId=value.id; updateOp();}"
-					:autocomplete="true"
-					:acApi="getApiUrl"
-					acParam="pilotName"
-					valueAttribute="id"
-					labelAttribute="pilotName"
-				></editable-cell>
-		</div>
-		<div class="detail-row">
-			<div class="detail-row-label">Date Created</div>
-			<div class="detail-row-value">{{opData.createdAt}}</div>
-		</div>
-		<div class="detail-row">
-			<div class="detail-row-label">Actual Payout</div>
-			<div class="detail-row-value">{{opData.actualPayout | iskString}}</div>
-		</div>
+		<div id="fleet-detail">
+			<h2>Fleet Detail</h2>
+			<div class="detail-row">
+				<div class="detail-row-label">Fleet Commander</div>
+				<editable-cell class="detail-row-value"
+						v-bind:value="opData.FleetCommanderId ? opData.FleetCommander : ''"
+						@input="(value)=>{opData.FleetCommander = value; opData.FleetCommanderId=value.id; updateOp();}"
+						:autocomplete="true"
+						:acApi="getApiUrl"
+						acParam="pilotName"
+						valueAttribute="id"
+						labelAttribute="pilotName"
+					></editable-cell>
+			</div>
+			<div class="detail-row">
+				<div class="detail-row-label">Date Created</div>
+				<div class="detail-row-value">{{opData.createdAt | ageTime}}</div>
+			</div>
+			<div class="detail-row">
+				<div class="detail-row-label">Actual Payout</div>
+				<div class="detail-row-value">{{opData.actualPayout | iskString}}</div>
+			</div>
 
-		<button v-on:click="deleteOp">Delete Op</button>
+			<button v-on:click="deleteOp">Delete Op</button>
+		</div>
 
 		<modal :showModal="showIskDialog" closeAction="closeIskDialog" 
 			v-on:submit="onIskDialogSubmit" v-model="iskDialogSiteData" v-on:close="onIskDialogSubmit">
 		</modal>
 
-		<div>
+		<div id="fleet-summary">
 			<h2>Fleet Summary</h2>
 			<div v-for="pilot in getFleetSummary.pilots" v-if="Object.keys(getFleetSummary.pilots).length > 0">
 			</div>
@@ -68,52 +68,60 @@
 			</div>
 		</div>
 
-		<h2>Site List</h2>
-		<div v-for="(site, siteIndex) in sortedSites">
-			Site Id: {{site.id}}
-			Site Created: {{site.createdAt}}
-			Site Isk: {{site.estimatedPayout}}
-
-			<button v-on:click="openIskDialog(site)">Set Site ISK</button>
-			<button v-on:click="toggleDetails(site)">Toggle Details</button>
-			<button class="delete-button" v-on:click="deleteSite(site)"> </button>
-
-			<div class="divTable" v-if="siteDetailOpen(site)">
-				<div class="divTableHeading">
-					<div class="divTableHead">Pilot Id</div>
-					<div class="divTableHead">Pilot Name</div>
-					<div class="divTableHead">Points</div>
-					<div class="divTableHead">ISK Share</div>
-					<div class="divTableHead"></div>
+		<div id="fleet-sites">
+			<h2>Site List</h2>
+			<div v-for="(site, siteIndex) in sortedSites" class="fleet-site">
+				<div class="control-panel" v-on:click="toggleDetails(site)">
+					Site {{site.id}} - {{site.createdAt | ageTime}}
+					<button class="delete-button right" v-on:click="deleteSite(site)"> </button>
 				</div>
-				<div class="divTableBody">
-					<div class="divTableRow" v-for="(participant, participantIndex) in site.SiteParticipations">
-						<div class="divTableCell">{{participant.id}}</div>
+
+				<div class="divTable" v-if="siteDetailOpen(site)">
+					<div class="divTableHeading">
+						<div class="divTableHead">Pilot Name</div>
+						<div class="divTableHead">Points</div>
+						<div class="divTableHead">ISK Share</div>
+						<div class="divTableHead"></div>
+					</div>
+					<div class="divTableBody">
+						<div class="divTableRow" v-for="(participant, participantIndex) in site.SiteParticipations">
+							<div class="divTableCell">
+								<editable-cell 
+									v-bind:value="participant.Pilot ? participant.Pilot : ''"
+									@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
+									:autocomplete="true"
+									:acApi="getApiUrl"
+									acParam="pilotName"
+									valueAttribute="id"
+									labelAttribute="pilotName"
+								></editable-cell>
+							</div>
+							<div class="divTableCell">
+								<editable-cell 
+									v-bind:value="participant.points"
+									@input="(value)=>{participant.points = value; updateParticipant(participant);}"
+								></editable-cell>
+							</div>
+							<div class="divTableCell">{{siteIsk(site,participant) | iskString}}</div>
+							<div class="divTableCell"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
+						</div>
+					</div>
+					<div class="divTableRow noborders">
 						<div class="divTableCell">
-							<editable-cell 
-								v-bind:value="participant.Pilot ? participant.Pilot : ''"
-								@input="(value)=>{participant.Pilot = value; participant.PilotId=value.id; updateParticipant(participant);}"
-								:autocomplete="true"
-								:acApi="getApiUrl"
-								acParam="pilotName"
-								valueAttribute="id"
-								labelAttribute="pilotName"
-							></editable-cell>
+							<button v-on:click="addParticipant(site)">Add Participant</button>
+						</div>
+						<div class="divTableCell"></div>
+						<div class="divTableCell">
+							{{site.estimatedPayout | iskString}}
 						</div>
 						<div class="divTableCell">
-							<editable-cell 
-								v-bind:value="participant.points"
-								@input="(value)=>{participant.points = value; updateParticipant(participant);}"
-							></editable-cell>
+							<button v-on:click="openIskDialog(site)">Set Site ISK</button>
 						</div>
-						<div class="divTableCell">{{siteIsk(site,participant) | iskString}}</div>
-						<div class="divTableCell"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
 					</div>
 				</div>
-				<button v-on:click="addParticipant(site)">Add Participant</button>
 			</div>
+			<button v-on:click="addSite">Add Site</button>
 		</div>
-		<button v-on:click="addSite">Add Site</button>
 	</div>
 </template>
 
@@ -316,22 +324,25 @@ export default {
 .divTableRow {
 	display: table-row;
 }
+.noborders .divTableCell{
+	border: none;
+}
 .divTableHeading {
-	background-color: #EEE;
+	background-color: #555;
 	display: table-header-group;
 }
 .divTableCell, .divTableHead {
-	border: 1px solid #999999;
+	border: none;
 	display: table-cell;
 	padding: 3px 10px;
 }
 .divTableHeading {
-	background-color: #EEE;
+	background-color: #555;
 	display: table-header-group;
 	font-weight: bold;
 }
 .divTableFoot {
-	background-color: #EEE;
+	background-color: #555;
 	display: table-footer-group;
 	font-weight: bold;
 }
@@ -345,5 +356,47 @@ export default {
 	height: 25px;
 	display: inline-block;
 }
-
+#debug{
+	float: right;
+	display: none;
+}
+#fleet-detail{
+	float: left;
+	width: 200px;
+	font-size: 15px;
+}
+#fleet-summary{
+	float: left;
+	width: 800px;
+}
+#fleet-sites{
+	padding-top: 15px;
+	clear: both;
+}
+#opDetail{
+	clear: both;
+}
+h2{
+	color: white;
+}
+.right{
+	float: right;
+}
+.fleet-site{
+	clear: both;
+}
+.control-panel{
+	border: 1px solid #555;
+	border-radius: 3px;
+	padding: 2px;
+	background-color: #444;
+	color: white;
+	cursor: pointer;
+}
+.detail-row-label{
+	display: inline-block;
+}
+.detail-row-value{
+	display: inline-block;
+}
 </style>

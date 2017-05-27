@@ -4,6 +4,7 @@ import SocketIO from 'socket.io-client'
 import VueSocketIO from 'vue-socket.io';
 import VueRouter from 'vue-router';
 import store from './vuex/vuex-store.js'
+import dateFormat from 'dateformat';
 
 import App from './App.vue'
 import OpList from './components/OpList.vue'
@@ -35,6 +36,30 @@ Vue.filter('iskString', function(value) {
 	return value ? value.toFixed(0).replace(/./g, function(c, i, a) {
 		return i && c !== "." && ((a.length - i) % 3 === 0) ? ' ' + c : c;
 	})+' ISK' : 0+' ISK';
+})
+
+Vue.filter('ageTime', function(value) {
+	console.log(value)
+	var diff = Math.ceil((new Date() - new Date(value))/1000)
+	var days = Math.floor(diff / (60 * 60 * 24));
+	diff -= days * (60 * 60 * 24)
+	var hours = Math.floor(diff / (60 * 60));
+	diff -= hours * (60 * 60)
+	var minutes = Math.floor(diff / 60);
+	var seconds = diff - minutes * 60
+
+	if(days>7){
+		return dateFormat(value,'shortDate')
+	}else{
+		var dateStrings = []
+		if(days>0)
+			dateStrings.push(days+" days")
+		if(hours>0)
+			dateStrings.push(hours+" hours")
+		if(minutes>0)
+			dateStrings.push(minutes+" minutes")
+		return dateStrings.join(", ")+" ago"
+	}
 })
 
 new Vue({
