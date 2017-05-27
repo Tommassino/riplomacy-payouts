@@ -49,7 +49,7 @@ Vue.filter('ageTime', function(value) {
 	var seconds = diff - minutes * 60
 
 	if(days>7){
-		return dateFormat(value,'shortDate')
+		return dateFormat(value,'mediumDate')
 	}else{
 		var dateStrings = []
 		if(days>0)

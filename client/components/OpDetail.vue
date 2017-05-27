@@ -1,5 +1,9 @@
 <template>
 	<div id="opDetail">
+		<modal :showModal="showIskDialog" closeAction="closeIskDialog" 
+			v-on:submit="onIskDialogSubmit" v-model="iskDialogSiteData" v-on:close="onIskDialogSubmit">
+		</modal>
+
 		<button id="debug" v-on:click="toggleDebug">Toggle Debug</button>
 		<div v-if="debug">
 			<table>
@@ -43,10 +47,6 @@
 
 			<button v-on:click="deleteOp">Delete Op</button>
 		</div>
-
-		<modal :showModal="showIskDialog" closeAction="closeIskDialog" 
-			v-on:submit="onIskDialogSubmit" v-model="iskDialogSiteData" v-on:close="onIskDialogSubmit">
-		</modal>
 
 		<div id="fleet-summary">
 			<h2>Fleet Summary</h2>
