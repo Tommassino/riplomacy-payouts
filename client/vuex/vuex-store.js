@@ -21,7 +21,17 @@ export default new Vuex.Store({
       console.log(state.sitesData.sort(compare));
       return state.sitesData.sort(compare);
     },
+    participantPoints: (state, getters) => (participant) => {
+      var points = 0;
+      points += participant.scout * 0.1
+      points += participant.fc * 0.1
+      points += participant.db * 0.1
+      points += (participant.dps > 0 ? 1 : 0) + (participant.dps > 1 ? (participant.dps-1)*0.5 : 0)
+      console.log('participant: '+JSON.stringify(participant)+'points: '+points)
+      return Math.min(points, 2.0)
+    },
     opSummary: (state, getters) => (sites) => {
+      console.log('opSummary');
       var pilots = {};
       var totalIsk = 0;
       var totalPoints = 0;
@@ -30,14 +40,15 @@ export default new Vuex.Store({
         totalIsk += site.estimatedPayout;
         
         var sitePoints = site.SiteParticipations.reduce((acc, cur) => {
-          return acc+parseInt(cur.points);
+          return acc+getters.participantPoints(cur);
         }, 0);
+        console.log(sitePoints);
         var siteIsk = parseInt(site.estimatedPayout);
 
         for (var participationId in site.SiteParticipations) {
           var participant = site.SiteParticipations[participationId]
           var pilotId = participant.PilotId;
-          var points = parseInt(participant.points);
+          var points = getters.participantPoints(participant);
 
           if (pilotId in pilots) {
             pilots[pilotId].points += points;

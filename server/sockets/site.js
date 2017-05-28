@@ -120,6 +120,8 @@ const addParticipant = (client, data) => {
 };
 
 const updateSite = (client, data) => {
+	//TODO protect certain fields from rewrite?
+
 	models.Site.update(data, {
 			where: {
 				id: data.id
@@ -132,10 +134,14 @@ const updateSite = (client, data) => {
 };
 
 const updateParticipant = (client, data) => {
-	models.SiteParticipation.update({
-			PilotId: data.pilotId,
-			points: data.points
-		}, {
+	var clean = {}
+	Object.assign(clean, data)
+	delete clean.id;
+	delete clean.Pilot;
+	delete clean.Site;
+	delete clean.createdAt;
+
+	models.SiteParticipation.update(clean, {
 			where: {
 				id: data.id
 			}

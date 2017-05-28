@@ -97,10 +97,14 @@
 								></editable-cell>
 							</div>
 							<div class="divTableCell">
-								<editable-cell 
-									v-bind:value="participant.points"
-									@input="(value)=>{participant.points = value; updateParticipant(participant);}"
-								></editable-cell>
+								<incremental-button :icon="require('../assets/star.png')" v-bind:value="participant.fc" 
+									@input="(value)=>{participant.fc = value; updateParticipant(participant);}"/>
+								<incremental-button :icon="require('../assets/db.png')" v-bind:value="participant.db" 
+									@input="(value)=>{participant.db = value; updateParticipant(participant);}"/>
+								<incremental-button :icon="require('../assets/dps.png')" v-bind:value="participant.dps" 
+									@input="(value)=>{participant.dps = value; updateParticipant(participant);}"/>
+								<incremental-button :icon="require('../assets/scout.png')" v-bind:value="participant.scout" 
+									@input="(value)=>{participant.scout = value; updateParticipant(participant);}"/>
 							</div>
 							<div class="divTableCell">{{siteIsk(site,participant) | iskString}}</div>
 							<div class="divTableCell"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
@@ -127,6 +131,7 @@
 
 <script>
 import EditableCell from './EditableCell.vue';
+import IncrementalButton from './IncrementalButton.vue';
 import Modal from './ISKModal.vue';
 
 import config from '../config/dev.env.js';
@@ -140,7 +145,8 @@ export default {
 	name: 'siteDetail',
 	components: {
 		EditableCell,
-		Modal
+		Modal,
+		IncrementalButton
 	},
 	mounted() {
 		var opId = this.$route.params.opId;
@@ -172,7 +178,8 @@ export default {
 			'opData'
 		]), mapGetters([
 			'sortedSites',
-			'opSummary'
+			'opSummary',
+			'participantPoints'
 		]), {
 			getApiUrl() {
 				return 'http://' + config.bind_host + ":" + config.bind_port + config.bind_path + '/get_pilots';
@@ -192,27 +199,19 @@ export default {
 		siteIsk: function(site, participant) {
 			var total = 0;
 			for (var id in site.SiteParticipations) {
-				total += parseInt(site.SiteParticipations[id].points);
+				total += this.participantPoints(site.SiteParticipations[id]);
 			}
-			return (site.estimatedPayout || 0) / total * participant.points;
+			return (site.estimatedPayout || 0) / total * this.participantPoints(participant);
 		},
 		openIskDialog: function(site) {
 			this.iskDialogSiteData = site;
 			this.showIskDialog = true;
 		},
 		onIskDialogSubmit: function(data) {
-			console.log(data);
 			//#TODO subtract total
 			this.iskDialogSiteData.estimatedPayout = data.estimatedPayout;
 			this.showIskDialog = false;
 			this.updateSite(this.iskDialogSiteData);
-		},
-		siteIsk: function(site, participant) {
-			var total = 0;
-			for (var id in site.SiteParticipations) {
-				total += parseInt(site.SiteParticipations[id].points);
-			}
-			return (site.estimatedPayout || 0) / total * participant.points;
 		},
 		deleteOp: function() {
 			if (!confirm('Are you sure?'))
@@ -282,14 +281,15 @@ export default {
 			});
 		},
 		updateParticipant: function(participant) {
+			var clean = {};
+			Object.assign(clean, JSON.parse(JSON.stringify(participant)));
+			delete clean.Pilot;
+			delete clean.createdAt;
+			delete clean.Site;
+
 			this.socketUpdateParticipant({
 				socket: this.$socket,
-				params: {
-					id: participant.id,
-					siteId: participant.SiteId,
-					pilotId: participant.PilotId,
-					points: participant.points
-				}
+				params: clean
 			});
 		},
 		toggleDetails: function(site) {
