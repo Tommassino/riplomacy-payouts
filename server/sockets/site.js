@@ -72,12 +72,16 @@ const addSite = (client, data) => {
 				}, {
 					transaction
 				}).then(site => {
+					console.log(latest_site.SiteParticipations);
 					return models.sequelize.Promise.map(latest_site ? latest_site.SiteParticipations : [], participation => {
-						if(participation.PilotId == 1)
-							return undefined;
 						var clean = {};
-						Object.assign(clean, participation);
-						clean.SiteId = site.id;
+						Object.assign(clean,participation.dataValues);
+						delete clean.createdAt;
+						delete clean.updatedAt;
+						delete clean.id;
+						clean.SiteId = site.id
+						console.log(clean);
+
 						return models.SiteParticipation.create(clean, {
 							transaction
 						});

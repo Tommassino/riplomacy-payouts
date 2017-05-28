@@ -40,6 +40,9 @@ Vue.filter('iskString', function(value) {
 
 Vue.filter('ageTime', function(value) {
 	var diff = Math.ceil((new Date() - new Date(value))/1000)
+	if(diff<60)
+		return "moments ago"
+
 	var days = Math.floor(diff / (60 * 60 * 24));
 	diff -= days * (60 * 60 * 24)
 	var hours = Math.floor(diff / (60 * 60));
