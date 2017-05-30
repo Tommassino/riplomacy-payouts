@@ -19,14 +19,14 @@
 				<div class="divTableHeading">
 					<div class="divTableHead"><input type="checkbox" id="checkbox" v-model="allSelected" @click="selectAll"></div>
 					<div class="divTableHead">Fleet Commander</div>
-					<div class="divTableHead">Timestamp</div>
+					<div class="divTableHead">Age</div>
 					<div class="divTableHead">Estimated Payout</div>
 				</div>
 				<div class="divTableBody">
 					<div class="divTableRow" v-for="op in filteredOpList" v-if="!FcFilter || op.FleetCommander.pilotName == FcFilter">
 						<div class="divTableCell"><input type="checkbox" id="checkbox" v-model="op.selected" v-on:change="selectionChanged(op)"></div>
 						<div class="divTableCell">{{op.FleetCommander.pilotName}}</div>
-						<div class="divTableCell">{{op.createdAt}}</div>
+						<div class="divTableCell">{{op.createdAt | ageTime}}</div>
 						<div class="divTableCell">{{opSummary(op.Sites).totalIsk | iskString}}</div>
 					</div>
 				</div>
@@ -51,7 +51,7 @@
 				<div class="divTableBody">
 					<div class="divTableRow" v-for="pilot in totalSummary.pilots">
 						<div class="divTableCell">{{pilot.Pilot.pilotName}}</div>
-						<div class="divTableCell">{{pilot.points}}</div>
+						<div class="divTableCell">{{pilot.points | shortNumber}}</div>
 						<div class="divTableCell">{{pilot.estimatedPayout | iskString}}</div>
 						<div class="divTableCell">{{parseInt(actualPayout)/totalSummary.totalIsk*pilot.estimatedPayout | iskString}}</div>
 					</div>
@@ -193,35 +193,3 @@ export default {
 		]))
 }
 </script>
-
-<style scoped>
-.divTable{
-	display: table;
-	width: 100%;
-}
-.divTableRow {
-	display: table-row;
-}
-.divTableHeading {
-	background-color: #EEE;
-	display: table-header-group;
-}
-.divTableCell, .divTableHead {
-	border: 1px solid #999999;
-	display: table-cell;
-	padding: 3px 10px;
-}
-.divTableHeading {
-	background-color: #EEE;
-	display: table-header-group;
-	font-weight: bold;
-}
-.divTableFoot {
-	background-color: #EEE;
-	display: table-footer-group;
-	font-weight: bold;
-}
-.divTableBody {
-	display: table-row-group;
-}
-</style>

@@ -106,7 +106,7 @@
 									@input="(value)=>{participant.scout = value; updateParticipant(participant);}"/>
 							</div>
 							<div class="divTableCell">{{siteIsk(site,participant) | iskString}}</div>
-							<div class="divTableCell"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
+							<div class="divTableCell text-right"><button class="delete-button" v-on:click="deleteParticipant(participant)"> </button></div>
 						</div>
 					</div>
 					<div class="divTableRow noborders">
@@ -117,13 +117,13 @@
 						<div class="divTableCell">
 							{{site.estimatedPayout | iskString}}
 						</div>
-						<div class="divTableCell">
+						<div class="divTableCell text-right">
 							<button v-on:click="openIskDialog(site)">Set Site ISK</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<button v-on:click="addSite">Add Site</button>
+			<button class="table-margin-button" v-on:click="addSite">Add Site</button>
 		</div>
 	</div>
 </template>
@@ -315,7 +315,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .divTable{
 	display: table;
 	width: 100%;
@@ -355,6 +355,9 @@ export default {
 	height: 25px;
 	display: inline-block;
 }
+.control-panel .delete-button{
+	margin-right: 9px;
+}
 #debug{
 	float: right;
 	display: none;
@@ -387,10 +390,13 @@ h2{
 .control-panel{
 	border: 1px solid #555;
 	border-radius: 3px;
-	padding: 2px;
+	padding: 2px 0 2px 2px;
 	background-color: #444;
 	color: white;
 	cursor: pointer;
+	height: 30px;
+	vertical-align: middle;
+	line-height: 20px;
 }
 .detail-row-label{
 	display: inline-block;
@@ -407,5 +413,11 @@ h2{
 	width: 100%;
 	height: auto;
 	border: solid 1px white;
+}
+.table-margin-button{
+	margin-left: 10px;
+}
+.text-right{
+	text-align: right;
 }
 </style>
