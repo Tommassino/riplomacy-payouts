@@ -60,7 +60,7 @@
 				<div class="divTableBody">
 					<div class="divTableRow" v-for="(participant, participantIndex) in getFleetSummary.pilots" v-if="participant.Pilot != null">
 						<div class="divTableCell">{{participant.Pilot.pilotName}}</div>
-						<div class="divTableCell">{{participant.points}}</div>
+						<div class="divTableCell">{{participant.points | shortNumber}}</div>
 						<div class="divTableCell">{{participant.estimatedPayout | iskString}}</div>
 					</div>
 				</div>

@@ -36,7 +36,7 @@ Vue.filter('iskString', function(value) {
 	return value ? value.toFixed(0).replace(/./g, function(c, i, a) {
 		return i && c !== "." && ((a.length - i) % 3 === 0) ? ' ' + c : c;
 	})+' ISK' : 0+' ISK';
-})
+});
 
 Vue.filter('ageTime', function(value) {
 	var diff = Math.ceil((new Date() - new Date(value))/1000)
@@ -62,7 +62,11 @@ Vue.filter('ageTime', function(value) {
 			dateStrings.push(minutes+" minutes")
 		return dateStrings.join(", ")+" ago"
 	}
-})
+});
+
+Vue.filter('shortNumber', function(value) {
+	return Number(Math.round(parseFloat(value)+'e1')+'e-1')
+});
 
 new Vue({
 	store,
