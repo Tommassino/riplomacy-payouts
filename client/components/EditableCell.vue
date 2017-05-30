@@ -23,7 +23,6 @@
 					<a href="#"
 						@click.prevent="selectList(i)"
 						@mousemove="mousemove(i)">
-						<b>{{ data[valueAttribute] }}</b>
 						<span>{{ data[labelAttribute] }}</span>
 					</a>
 				</li>

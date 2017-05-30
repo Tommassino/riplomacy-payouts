@@ -15,6 +15,7 @@
     "body-parser": "^1.17.1",
     "dateformat": "^2.0.0",
     "es6-promise": "^4.1.0",
+    "eve-swagger": "^0.3.1",
     "express": "^4.15.2",
     "feathers": "^2.1.1",
     "feathers-socketio": "^1.6.0",

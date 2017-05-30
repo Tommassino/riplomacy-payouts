@@ -72,7 +72,6 @@ const addSite = (client, data) => {
 				}, {
 					transaction
 				}).then(site => {
-					console.log(latest_site.SiteParticipations);
 					return models.sequelize.Promise.map(latest_site ? latest_site.SiteParticipations : [], participation => {
 						var clean = {};
 						Object.assign(clean,participation.dataValues);

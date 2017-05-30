@@ -35,14 +35,13 @@
 						valueAttribute="id"
 						labelAttribute="pilotName"
 					></editable-cell>
+				<div class="fc-pic">
+					<img v-if="opData.FleetCommander" :src="'https://image.eveonline.com/Character/'+opData.FleetCommanderId+'_256.jpg'" />
+				</div>
 			</div>
 			<div class="detail-row">
 				<div class="detail-row-label">Date Created</div>
 				<div class="detail-row-value">{{opData.createdAt | ageTime}}</div>
-			</div>
-			<div class="detail-row">
-				<div class="detail-row-label">Actual Payout</div>
-				<div class="detail-row-value">{{opData.actualPayout | iskString}}</div>
 			</div>
 
 			<button v-on:click="deleteOp">Delete Op</button>
@@ -398,5 +397,15 @@ h2{
 }
 .detail-row-value{
 	display: inline-block;
+}
+.fc-pic{
+	width: 60%;	
+	height: 140px;
+	margin: 20px;
+}
+.fc-pic img{
+	width: 100%;
+	height: auto;
+	border: solid 1px white;
 }
 </style>
