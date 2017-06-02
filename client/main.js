@@ -1,3 +1,4 @@
+import 'core-js';
 import 'es6-promise/auto';
 
 import Vue from 'vue';
