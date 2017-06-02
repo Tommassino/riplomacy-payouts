@@ -1,17 +1,18 @@
-require('es6-promise').polyfill();
-import Vue from 'vue'
-import SocketIO from 'socket.io-client'
+import 'es6-promise/auto';
+
+import Vue from 'vue';
+import SocketIO from 'socket.io-client';
 import VueSocketIO from 'vue-socket.io';
 import VueRouter from 'vue-router';
-import store from './vuex/vuex-store.js'
+import store from './vuex/vuex-store.js';
 import dateFormat from 'dateformat';
 
-import App from './App.vue'
-import OpList from './components/OpList.vue'
-import OpDetail from './components/OpDetail.vue'
-import Payouts from './components/Payouts.vue'
+import App from './App.vue';
+import OpList from './components/OpList.vue';
+import OpDetail from './components/OpDetail.vue';
+import Payouts from './components/Payouts.vue';
 
-import config from './config/dev.env.js'
+import config from './config/dev.env.js';
 
 var socketio = SocketIO('http://' + config.bind_host + ":" + config.bind_port, {
 	path: config.bind_path + "/socket.io"
